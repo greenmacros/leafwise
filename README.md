@@ -36,6 +36,19 @@ npm run build      # static site in dist/ — host anywhere (GitHub Pages, Netli
    (each import becomes a new list). CSV columns: `name,price,packs,size,unit,points,coupon,shipping,uses,note`.
 8. EN/日本語 and ¥/$ toggles. The currency toggle only changes the symbol; nothing is converted.
 
+## Install as an app & updates
+
+LeafWise is a PWA: it can be added to the home screen and works offline once loaded.
+
+- **Android / desktop Chrome & Edge:** an "Install" chip appears on the main screen (or ⚙ → Install app).
+- **iPhone / iPad:** open in Safari, tap Share → *Add to Home Screen* (iOS has no install button for web apps; ⚙ shows these steps).
+- **Updates:** the app checks for a new version when you open it and hourly while it is open. When one is downloaded a
+  "A new version is ready — Update" notice appears; nothing reloads until you press it, so you never lose an edit in progress.
+  ⚙ → *Check for updates* does it on demand and shows the current version/build.
+- Your lists are stored on the device and survive updates.
+- Every push to `main` is a new deploy (new build id), which is what triggers the update notice. Icons are regenerated with
+  `python3 scripts/make-icons.py` (needs Pillow). The service worker is generated at build time from `scripts/sw-template.js`.
+
 ## Paste parser
 
 Handles, among others: `サラヤ ヤシノミ洗剤 詰替 540ml (x 2) ¥652`, `1400mL x 3 ¥2,862`, `2 x 540ml`, `pack of 8`,

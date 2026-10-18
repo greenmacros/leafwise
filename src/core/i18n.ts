@@ -44,6 +44,13 @@ const en = {
   pasteOr: 'Or paste listing text (optional)', bmStep1: '1. On a computer, show your browser\'s bookmarks bar and drag the button below onto it. (Do this from the final web address of this tool, because the bookmark remembers it.)', bmStep2: '2. Open an Amazon search results page and click that bookmark.', bmStep3: '3. This tool opens in a new tab with the products found. Check them and press Add.',
   link: 'Link (URL)', open: 'Open', searchOr: 'Or search Amazon', searchPlaceholder: 'e.g. dish soap refill', searchGo: 'Search', searchHint: 'Opens Amazon in a new tab. There, click your bookmarklet (see Settings) to send the results back here with links.',
   color: 'Color', colorNone: 'None', store: 'Store', duplicate: 'Duplicate', undo: 'Undo', deleted: 'Deleted', basis: 'Show price per', basisOne: '1 ml/g', basisHundred: '100 ml/g',
+  installTitle: 'Install app', installBtn: 'Install', installed: 'Installed: you are running LeafWise as an app.',
+  installChip: 'Install LeafWise for one-tap access, even offline.',
+  installIOS: 'On iPhone/iPad (Safari): tap the Share button, then "Add to Home Screen".',
+  installOther: 'Open your browser menu and choose "Install app" or "Add to Home screen".',
+  updateTitle: 'Updates', version: 'Version', checkUpdates: 'Check for updates', checking: 'Checking…',
+  updateAvailable: 'A new version is ready.', updateNow: 'Update', upToDate: 'You have the latest version.',
+  updateOffline: 'Could not check. Are you offline?', updateUnsupported: 'Update checks only run in the hosted app.', dismiss: 'Dismiss',
   footer: 'Data stays in your browser (localStorage). No account, no server.',
 } as const;
 
@@ -93,6 +100,13 @@ const ja: Record<Key, string> = {
   pasteOr: 'または商品テキストを貼り付け（任意）', bmStep1: '1. パソコンでブラウザのブックマークバーを表示し、下のボタンをドラッグして追加します。（ブックマークはこのツールのアドレスを記憶するので、公開後の正式なアドレスで開いて行ってください。）', bmStep2: '2. Amazonの検索結果ページを開き、そのブックマークをクリックします。', bmStep3: '3. 見つかった商品が入った状態でこのツールが新しいタブで開きます。確認して「追加」を押してください。',
   link: 'リンク(URL)', open: '開く', searchOr: 'またはAmazonで検索', searchPlaceholder: '例: 食器用洗剤 詰替', searchGo: '検索', searchHint: 'Amazonが新しいタブで開きます。そこでブックマークレット（設定を参照）をクリックすると、結果がリンク付きでここに届きます。',
   color: 'カラー', colorNone: 'なし', store: '店舗', duplicate: '複製', undo: '元に戻す', deleted: '削除しました', basis: '価格の表示単位', basisOne: '1 ml/g', basisHundred: '100 ml/g',
+  installTitle: 'アプリをインストール', installBtn: 'インストール', installed: 'インストール済み：アプリとして実行中です。',
+  installChip: 'LeafWiseをインストールすると、ワンタップで開けてオフラインでも使えます。',
+  installIOS: 'iPhone/iPad（Safari）：共有ボタンをタップし、「ホーム画面に追加」を選びます。',
+  installOther: 'ブラウザのメニューから「アプリをインストール」または「ホーム画面に追加」を選んでください。',
+  updateTitle: 'アップデート', version: 'バージョン', checkUpdates: 'アップデートを確認', checking: '確認中…',
+  updateAvailable: '新しいバージョンがあります。', updateNow: '更新', upToDate: '最新バージョンです。',
+  updateOffline: '確認できませんでした。オフラインですか？', updateUnsupported: 'アップデート確認は公開版のアプリでのみ動作します。', dismiss: '閉じる',
   footer: 'データはブラウザ内(localStorage)に保存されます。アカウントもサーバーも不要です。',
 };
 

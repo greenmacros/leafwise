@@ -88,6 +88,9 @@ details[open] > summary { margin-bottom: 8px; }
 .swatches { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 .swatch { width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; background: var(--c, var(--surface)); color: var(--muted); }
 .swatch[aria-checked="true"] { outline: 3px solid var(--text); outline-offset: 2px; }
+.chip { display: flex; align-items: center; gap: 8px; margin: 8px 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: .85rem; }
+.chip span { flex: 1; }
+.chip button { min-height: 36px; }
 .toast button { color: var(--bg); text-decoration: underline; min-height: 32px; padding: 0 0 0 12px; }
 .toast { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 8px 16px; border-radius: 99px; z-index: 40; max-width: 90vw; }
 .pill { border-radius: 99px; padding: 1px 8px; background: var(--surface); border: 1px solid var(--line); font-size: .8rem; }

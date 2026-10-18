@@ -8,6 +8,7 @@ import { SAMPLE_ROWS } from '../core/sample';
 import { loadState, newList, saveState } from '../core/state';
 import { PRODUCT_COLORS, type Lang, type Product, type RankBy, type Unit } from '../core/types';
 import { UNIT_LIST } from '../core/units';
+import { APP_VERSION, BUILD_ID, applyWaitingUpdate, canPromptInstall, checkForUpdates, isIOS, isStandalone, onInstallStateChange, promptInstall, registerSW } from './pwa';
 import { buildBookmarklet, readBookmarkletHash, type BmItem } from '../bookmarklet/install';
 
 /* ---------- state ---------- */
@@ -40,12 +41,23 @@ function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Attrs = {}, ...
   return el;
 }
 
-const toast = (msg: string, action?: { label: string; fn: () => void }) => {
+const toast = (msg: string, action?: { label: string; fn: () => void }, sticky = false) => {
   const el = h('div', { class: 'toast', role: 'status' }, msg,
-    action ? h('button', { class: 'ghost', onClick: () => { action.fn(); el.remove(); } }, action.label) : null);
+    action ? h('button', { class: 'ghost', onClick: () => { action.fn(); el.remove(); } }, action.label) : null,
+    sticky ? h('button', { class: 'ghost', 'aria-label': t('dismiss'), onClick: () => { el.remove(); updatePromptShown = false; } }, '✕') : null);
   document.body.append(el);
-  setTimeout(() => el.remove(), action ? 6000 : 2500);
+  if (!sticky) setTimeout(() => el.remove(), action ? 6000 : 2500);
 };
+
+let updatePromptShown = false;
+function showUpdatePrompt(apply: () => void) {
+  if (updatePromptShown) return;
+  updatePromptShown = true;
+  toast(t('updateAvailable'), { label: t('updateNow'), fn: apply }, true);
+}
+
+const DISMISS_KEY = 'leafwise:installDismissed';
+const installDismissed = () => { try { return storage?.getItem(DISMISS_KEY) === '1'; } catch { return false; } };
 
 function download(filename: string, text: string, mime: string) {
   const url = URL.createObjectURL(new Blob([text], { type: mime }));
@@ -147,6 +159,23 @@ function editor(p: Product, onChange: () => void, autofocusName = false): HTMLEl
 
 const app = document.getElementById('app')!;
 
+let installChip: HTMLElement | null = null;
+
+/** One-time "install" hint; shown only where installing is actually possible. */
+function updateInstallChip() {
+  if (!installChip) return;
+  const show = !isStandalone() && !installDismissed() && (canPromptInstall() || isIOS());
+  installChip.style.display = show ? '' : 'none';
+  if (!show) return;
+  installChip.replaceChildren(
+    h('span', {}, t('installChip')),
+    h('button', { class: 'primary', onClick: async () => { if (canPromptInstall()) await promptInstall(); else openSettings(); } }, t('installBtn')),
+    h('button', { class: 'ghost', 'aria-label': t('dismiss'), onClick: () => {
+      try { storage?.setItem(DISMISS_KEY, '1'); } catch { /* ignore */ }
+      updateInstallChip();
+    } }, '✕'));
+}
+
 interface RowRefs { root: HTMLElement; rank: HTMLElement; name: HTMLElement; up: HTMLElement; facts: HTMLElement; body: HTMLElement; issues: HTMLElement }
 const live: { banner?: HTMLElement; rows: Map<string, RowRefs>; empty?: HTMLElement; extras?: HTMLElement; list?: HTMLElement } = { rows: new Map() };
 
@@ -167,6 +196,7 @@ function render() {
   const header = h('header', {}, listSel, h('button', { class: 'ghost', 'aria-label': t('settings'), title: t('settings'), onClick: openSettings }, '⚙'));
 
   live.banner = h('div', { class: 'banner idle', role: 'status', 'aria-live': 'polite' });
+  installChip = h('div', { class: 'chip' });
   live.extras = h('div');
   live.list = h('div', { class: 'rows' });
   live.empty = h('div', { class: 'empty-state' }, h('p', {}, t('emptyRows')),
@@ -174,7 +204,8 @@ function render() {
   for (const row of list.rows) live.list.append(buildRow(row));
 
   const fab = h('div', { class: 'fab' }, h('button', { class: 'primary', onClick: openAdd }, t('addRow')));
-  app.replaceChildren(h('main', {}, header, live.banner, live.empty, live.list, live.extras), fab);
+  app.replaceChildren(h('main', {}, header, live.banner, installChip, live.empty, live.list, live.extras), fab);
+  updateInstallChip();
   updateResults();
 }
 
@@ -434,6 +465,18 @@ function openSettings() {
       h('button', { onClick: () => download(`${safe}.json`, listToJSON(list), 'application/json') }, t('exportJson')),
       h('button', { onClick: () => download(`${safe}.csv`, '﻿' + listToCSV(list), 'text/csv;charset=utf-8') }, t('exportCsv')),
       h('button', { onClick: () => file.click() }, t('importFile')), file),
+    h('div', { class: 'section' }, h('h2', {}, t('installTitle')),
+      isStandalone() ? h('p', { class: 'muted' }, t('installed'))
+        : canPromptInstall() ? h('button', { class: 'primary', onClick: () => { void promptInstall(); } }, t('installBtn'))
+        : h('p', { class: 'muted' }, isIOS() ? t('installIOS') : t('installOther'))),
+    h('div', { class: 'section' }, h('h2', {}, t('updateTitle')),
+      h('p', { class: 'muted' }, `${t('version')}: v${APP_VERSION} (${BUILD_ID})`),
+      h('button', { onClick: async () => {
+        toast(t('checking'));
+        const r = await checkForUpdates();
+        if (r === 'ready') { updatePromptShown = false; showUpdatePrompt(applyWaitingUpdate); }
+        else toast(t(r === 'latest' ? 'upToDate' : r === 'offline' ? 'updateOffline' : 'updateUnsupported'));
+      } }, t('checkUpdates'))),
     h('details', { class: 'section' }, h('summary', {}, t('bmTitle')),
       h('p', { class: 'muted' }, t('bmStep1')), h('p', { class: 'muted' }, t('bmStep2')), h('p', { class: 'muted' }, t('bmStep3')), h('p', { class: 'muted' }, t('bmDesc') + ' ' + t('bmMobile')),
       h('div', { class: 'bar' },
@@ -458,5 +501,7 @@ if (bm?.length) {
   });
   history.replaceState(null, '', location.pathname + location.search);
 }
+onInstallStateChange(updateInstallChip);
+void registerSW(showUpdatePrompt);
 render();
 if (bm?.length) { openAdd(); toast(t('bmImported', { n: drafts.length })); }
